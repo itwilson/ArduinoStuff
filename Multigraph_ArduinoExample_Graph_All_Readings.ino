@@ -24,11 +24,11 @@ void loop()
 
 Serial.print(separator);//Separate different readings
 
-   int sensorValue2 = analogRead(A2);
+   //int sensorValue2 = analogRead(A2);
    
-        Serial.print("Humidity"); //Label for the sensor
-        Serial.print(":"); //Seperator between values
-    Serial.print(sensorValue2, DEC); //Actual value
+        //Serial.print("Humidity"); //Label for the sensor
+        //Serial.print(":"); //Seperator between values
+    //Serial.print(sensorValue2, DEC); //Actual value
   
    Serial.println();
 }
