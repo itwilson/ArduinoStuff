@@ -7,6 +7,8 @@ here's a difffernt thing: http://teaching.ericforman.com/arduino-to-processing-m
 
 I took these and combined them to make a decent little utility
 2014 A Quitmeyer Public Domain
+
+Modified for an Accel by Ian Wilson
 */
 
 import processing.serial.*;
@@ -47,7 +49,7 @@ void setup () {
   //Get Serial Setup
   println(Serial.list());
   // Open Serial port at 9600.
-  myPort = new Serial(this, Serial.list()[0], 115200);
+  myPort = new Serial(this, Serial.list()[2], 115200);
   myPort.clear();
   myPort.bufferUntil('\n');
   background(0);
@@ -124,7 +126,7 @@ pair[1]=trim(pair[1]);
  stroke(gimmeTheRightColorForSensorNumber(j));
  
  //stroke(0,127,255);
- line(xPos, partH*(j+1), xPos, partH*(j+1)  - value);
+ line(xPos, (partH*(j+1)) - (partH / 2), xPos, (partH*(j+1)  - value ) - (partH / 2));
 
  // draw dividing lines:
       stroke(255);
@@ -152,7 +154,7 @@ void exit() {
 
 color gimmeTheRightColorForSensorNumber (int sensorNumber) {
   color col;
-  int modulo8 = (sensorNumber % 8);
+  int modulo8 = (sensorNumber % 8) + 1;
   modulo8++;
   if (modulo8 == 0) {
     modulo8 = 6;

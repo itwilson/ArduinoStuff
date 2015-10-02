@@ -22,7 +22,7 @@ void loop()
         Serial.print(":"); //Seperator between values
     Serial.print(sensorValue, DEC); //Actual value
 
-Serial.print(separator);//Separate different readings
+//Serial.print(separator);//Separate different readings
 
    //int sensorValue2 = analogRead(A2);
    
@@ -31,4 +31,9 @@ Serial.print(separator);//Separate different readings
     //Serial.print(sensorValue2, DEC); //Actual value
   
    Serial.println();
+
+   if (sensorValue > 265 || sensorValue < 235){
+      tone(11, sensorValue, 200);
+    
+   }
 }

@@ -1,0 +1,173 @@
+/*
+Multiple Graphs Simultaneously
+from http://www.objectdna.com/workshops/2011/10/29/graph-2-0/
+but that example isn't actually fully written
+
+here's a difffernt thing: http://teaching.ericforman.com/arduino-to-processing-multiple-sensors-serial-communication/
+
+I took these and combined them to make a decent little utility
+2014 A Quitmeyer Public Domain
+
+Modified for an Accel by Ian Wilson
+*/
+
+import processing.serial.*;
+ 
+String delimiterBetweenMultipleValues = "|";
+String delimiterBetweenLabelAndValue = ":";
+   int  numserialreads=0;
+int graphStartX = 100;
+int textHeight = 15;
+int textPadding = 2;
+int circleDiameter = 3;
+color backgroundColor = color(0, 0, 0, 255);
+color graphHeadColor = color(255, 255, 255, 255);
+color textColor = color(255, 255, 255, 255);
+ 
+Serial myPort;        // The serial port
+int opacity = 100;
+ 
+String[] valuePairs;
+boolean drawPoint = false;
+boolean drawCircle = true;
+boolean drawLine = true;
+int xPos = graphStartX;         // horizontal position of the graph
+
+int partH;          // partial screen height
+
+int valmin = 0;
+int valmax=1024;
+
+
+
+ 
+void setup () {
+  // set the window size. (Can be any size you want.  Width should be greater than 100, and height is
+  // best when it's at least 32*number of streams)
+  size(1000, 760);        
+    
+  //Get Serial Setup
+  println(Serial.list());
+  // Open Serial port at 9600.
+  myPort = new Serial(this, Serial.list()[2], 115200);
+  myPort.clear();
+  myPort.bufferUntil('\n');
+  background(0);
+}
+ 
+
+ 
+void draw () {
+  // everything happens in the serialEvent()
+}
+ 
+void keyPressed() {
+  // If you press 'l',
+  if (key == 'n') {
+       xPos = 0;
+        background(0);   // erase screen with black
+  }
+
+}
+ 
+void serialEvent (Serial myPort) {
+  // get the ASCII string:
+  String inString = myPort.readStringUntil('\n');
+ 
+  if (inString != null) {
+   //Throw away the first couple of serial reads cuz they funky sometimes
+//TODO make not Hacky
+    numserialreads++;
+    
+    // trim off any whitespace.
+    inString = trim(inString);
+    // Show the incoming data string.
+    println(inString);
+    
+    if (numserialreads<20){ //Reset all the stuff
+println("initializing");
+return;
+}
+if (numserialreads==20){ //Reset all the stuff
+         xPos = 0;
+        background(0);   // erase screen with black
+
+}
+
+    // split the incoming string into pairs of label+value and store in an array.
+    valuePairs = split(inString, delimiterBetweenMultipleValues);
+    
+    int totalinputs = valuePairs.length;
+      partH = height / totalinputs;    // to divide screen up to draw the number of sensors
+
+    
+    //Parse each value pair for the label and the value
+    for (int j=0; j<totalinputs; j++)
+ {
+ String[] pair;
+ 
+ pair = split(valuePairs[j],delimiterBetweenLabelAndValue);
+ 
+ String label;
+ 
+ label = pair[0];
+  text(label, 10, partH*(j+1) -10); 
+
+pair[1]=trim(pair[1]);
+ int value = int(pair[1]);
+ // Write down that label on the axis
+ 
+ //Map the value to the variable partial heights
+ 
+     value = int(map(value, valmin, valmax, 0, partH));
+
+ 
+ //graph its value
+ stroke(gimmeTheRightColorForSensorNumber(j));
+ 
+ //stroke(0,127,255);
+ line(xPos, (partH*(j+1)), xPos, (partH*(j+1)  - (value * 4) ) );
+
+ // draw dividing lines:
+      stroke(255);
+      line(0, partH*(j+1),   width, partH*(j+1));
+  }
+
+
+      // if at the edge of the screen, go back to the beginning:
+      if (xPos >= width) {
+        xPos = 0;
+        background(0);   // erase screen with black
+      } 
+      else {
+        xPos++;          // increment the graph's horizontal position
+      }
+
+  }
+}
+ 
+void exit() {
+  myPort.stop();
+}
+
+
+
+color gimmeTheRightColorForSensorNumber (int sensorNumber) {
+  color col;
+  //int modulo8 = ((3 - sensorNumber) % 8);
+  int modulo8 = 0;
+  if (sensorNumber == 0){
+     modulo8 = 3; 
+  }else if (sensorNumber == 1){
+     modulo8 = 1; 
+  }else if (sensorNumber == 2){
+     modulo8 = 0; 
+  }
+  
+  modulo8++;
+  if (modulo8 == 0) {
+    modulo8 = 6;
+  }
+  col = color( ((modulo8 >> 2) & 0x01)*255, ((modulo8 >> 1) & 0x01)*255, (modulo8 & 0x01)*255, opacity);
+  return col;
+}
